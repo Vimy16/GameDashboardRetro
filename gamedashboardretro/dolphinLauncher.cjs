@@ -67,8 +67,32 @@ function setIniSetting(lines, section, key, value) {
   }
 }
 
+function seedPortableDolphinDefaults(executablePath) {
+  const dolphinFolder = path.dirname(executablePath)
+  const configFolder = path.join(dolphinFolder, 'User', 'Config')
+  const defaultsFolder = path.join(dolphinFolder, 'GDR-Defaults', 'Config')
+  if (!fs.existsSync(defaultsFolder)) return
+
+  function copyMissingDefaults(sourceFolder, destinationFolder) {
+    if (!fs.existsSync(sourceFolder)) return
+    for (const entry of fs.readdirSync(sourceFolder, { withFileTypes: true })) {
+      const sourcePath = path.join(sourceFolder, entry.name)
+      const destinationPath = path.join(destinationFolder, entry.name)
+      if (entry.isDirectory()) {
+        copyMissingDefaults(sourcePath, destinationPath)
+      } else if (entry.isFile() && !fs.existsSync(destinationPath)) {
+        fs.mkdirSync(destinationFolder, { recursive: true })
+        fs.copyFileSync(sourcePath, destinationPath)
+      }
+    }
+  }
+
+  copyMissingDefaults(defaultsFolder, configFolder)
+}
+
 function configurePortableDolphin(executablePath) {
   const configFolder = path.join(path.dirname(executablePath), 'User', 'Config')
+  seedPortableDolphinDefaults(executablePath)
   const configPath = path.join(configFolder, 'Dolphin.ini')
   fs.mkdirSync(configFolder, { recursive: true })
 
@@ -126,4 +150,9 @@ function launchGameCubeGame(gamePath, {
   })
 }
 
-module.exports = { configurePortableDolphin, findDolphinExecutable, launchGameCubeGame }
+module.exports = {
+  configurePortableDolphin,
+  findDolphinExecutable,
+  launchGameCubeGame,
+  seedPortableDolphinDefaults,
+}

@@ -8,6 +8,7 @@ const {
   configurePortableDolphin,
   findDolphinExecutable,
   launchGameCubeGame,
+  seedPortableDolphinDefaults,
 } = require('./dolphinLauncher.cjs')
 
 const testFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'gdr-dolphin-test-'))
@@ -47,6 +48,39 @@ test('configures Dolphin preferences and 6x internal resolution without overwrit
   const graphicsConfig = fs.readFileSync(path.join(configFolder, 'GFX.ini'), 'utf8')
   assert.match(graphicsConfig, /\[Settings\]\nVSync = True\nInternalResolution = 6/)
   assert.match(graphicsConfig, /\[Enhancements\]\nPostProcessingShader = test/)
+})
+
+test('seeds tracked defaults and profiles only when portable files are missing', () => {
+  const configFolder = path.join(bundledDolphinFolder, 'User', 'Config')
+  const defaultsFolder = path.join(bundledDolphinFolder, 'GDR-Defaults', 'Config')
+  const defaultProfileFolder = path.join(defaultsFolder, 'Profiles', 'GCPad')
+  const runtimeProfileFolder = path.join(configFolder, 'Profiles', 'GCPad')
+  fs.mkdirSync(defaultProfileFolder, { recursive: true })
+  fs.mkdirSync(configFolder, { recursive: true })
+  fs.writeFileSync(path.join(defaultsFolder, 'GFX.ini'), '[Settings]\nInternalResolution = 6\n')
+  fs.writeFileSync(path.join(defaultsFolder, 'GCPadNew.ini'), '[GCPad1]\nDevice = XInput/0/Gamepad\n')
+  fs.writeFileSync(path.join(defaultProfileFolder, '8BitDo Ultimate 2 Wireless.ini'), '[Profile]\nButtons/A = `Button A`\n')
+  fs.writeFileSync(path.join(defaultProfileFolder, 'Keyboard Mouse.ini'), '[Profile]\nButtons/A = `X`\n')
+  fs.writeFileSync(path.join(configFolder, 'GFX.ini'), '[Settings]\nInternalResolution = 3\n')
+
+  seedPortableDolphinDefaults(executablePath)
+
+  assert.equal(
+    fs.readFileSync(path.join(configFolder, 'GFX.ini'), 'utf8'),
+    '[Settings]\nInternalResolution = 3\n',
+  )
+  assert.equal(
+    fs.readFileSync(path.join(configFolder, 'GCPadNew.ini'), 'utf8'),
+    '[GCPad1]\nDevice = XInput/0/Gamepad\n',
+  )
+  assert.equal(
+    fs.readFileSync(path.join(runtimeProfileFolder, '8BitDo Ultimate 2 Wireless.ini'), 'utf8'),
+    '[Profile]\nButtons/A = `Button A`\n',
+  )
+  assert.equal(
+    fs.readFileSync(path.join(runtimeProfileFolder, 'Keyboard Mouse.ini'), 'utf8'),
+    '[Profile]\nButtons/A = `X`\n',
+  )
 })
 
 test('also finds the Dolphin-x64 folder inside a dolphin directory', () => {

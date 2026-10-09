@@ -117,6 +117,40 @@ test('enriches imported ROM metadata from a matching OpenVGDB filename', () => {
   metadataDatabase.close()
 })
 
+test('refreshes existing game titles and artwork on scan, clearing missing artwork', () => {
+  const database = new DatabaseSync(':memory:')
+  const store = createGameStore(database)
+  const romPath = path.join(testFolder, 'Mario Kart - Double Dash!! (USA).nkit.iso')
+  const initialGame = store.addFiles([romPath]).games.find((game) => game.filePath === romPath)
+  assert.equal(initialGame.title, 'Mario Kart   Double Dash!! (USA)')
+  assert.equal(initialGame.artworkPath, null)
+
+  const systemFolder = path.join(testFolder, 'Libretro-Thumbnails', 'Nintendo_-_GameCube')
+  const titleFolder = path.join(systemFolder, 'Named_Titles')
+  const boxArtFolder = path.join(systemFolder, 'Named_Boxarts')
+  const titleImagePath = path.join(titleFolder, 'Mario Kart_ Double Dash!! (USA).png')
+  const boxArtPath = path.join(boxArtFolder, 'Mario Kart - Double Dash!! (USA).png')
+  fs.mkdirSync(titleFolder, { recursive: true })
+  fs.mkdirSync(boxArtFolder, { recursive: true })
+  fs.writeFileSync(titleImagePath, '')
+  fs.writeFileSync(boxArtPath, '')
+
+  store.setArtworkLookup(createLocalArtworkLookup(testFolder))
+  const scanned = store.syncPlatformFiles([{ filePath: romPath, platform: 'GameCube' }], [], testFolder)
+  const matchedGame = scanned.games.find((game) => game.id === initialGame.id)
+  assert.equal(matchedGame.title, 'Mario Kart_ Double Dash!! (USA)')
+  assert.equal(matchedGame.artworkPath, boxArtPath)
+
+  fs.rmSync(titleImagePath)
+  fs.rmSync(boxArtPath)
+  store.setArtworkLookup(createLocalArtworkLookup(testFolder))
+  const rescanned = store.syncPlatformFiles([{ filePath: romPath, platform: 'GameCube' }], [], testFolder)
+  const fallbackGame = rescanned.games.find((game) => game.id === initialGame.id)
+  assert.equal(fallbackGame.title, 'Mario Kart   Double Dash!! (USA)')
+  assert.equal(fallbackGame.artworkPath, null)
+  database.close()
+})
+
 test('upgrades existing game databases with OpenVGDB metadata fields', () => {
   const database = new DatabaseSync(':memory:')
   database.exec(`

@@ -93,6 +93,8 @@ function createGameStore(database, metadataLookup = () => null, artworkLookup = 
   findArtwork: () => null,
   findTitle: () => null,
 }) {
+  let currentArtworkLookup = artworkLookup
+
   database.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA foreign_keys = ON;
@@ -145,7 +147,7 @@ function createGameStore(database, metadataLookup = () => null, artworkLookup = 
   const updateArtwork = database.prepare('UPDATE games SET artwork_path = ? WHERE file_path = ?')
   const updateTitle = database.prepare('UPDATE games SET title = ? WHERE file_path = ?')
   const addImportedFile = (filePath, platformOverride) => {
-    const importedGame = createImportedGame(filePath, platformOverride, metadataLookup, artworkLookup)
+    const importedGame = createImportedGame(filePath, platformOverride, metadataLookup, currentArtworkLookup)
     const { hasMetadata, ...game } = importedGame
     const result = insertFile.run(game)
     if (hasMetadata) {
@@ -159,7 +161,7 @@ function createGameStore(database, metadataLookup = () => null, artworkLookup = 
         filePath: game.filePath,
       })
     }
-    if (game.artworkPath) updateArtwork.run(game.artworkPath, game.filePath)
+    updateArtwork.run(game.artworkPath, game.filePath)
     updateTitle.run(game.title, game.filePath)
     return Number(result.changes)
   }
@@ -208,6 +210,13 @@ function createGameStore(database, metadataLookup = () => null, artworkLookup = 
       return database.prepare(
         "SELECT setting_value FROM app_settings WHERE setting_key = 'games_folder'",
       ).get()?.setting_value ?? null
+    },
+
+    setArtworkLookup(lookup) {
+      if (typeof lookup?.findArtwork !== 'function' || typeof lookup?.findTitle !== 'function') {
+        throw new TypeError('Artwork lookup must provide findArtwork and findTitle functions.')
+      }
+      currentArtworkLookup = lookup
     },
 
     addFiles(filePaths) {

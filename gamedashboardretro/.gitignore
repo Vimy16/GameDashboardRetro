@@ -17,17 +17,7 @@ database/*.sqlite
 database/*.sqlite-shm
 database/*.sqlite-wal
 /Dolphin-x64/User/
-/game-assets/*
-!/game-assets/.gitkeep
-!/game-assets/Libretro-Thumbnails/
-/game-assets/Libretro-Thumbnails/*
-!/game-assets/Libretro-Thumbnails/.gitkeep
-!/game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/
-/game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/*
-!/game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/.gitkeep
-!/game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/Named_Boxarts/
-/game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/Named_Boxarts/*
-!/game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/Named_Boxarts/.gitkeep
+/game-assets/
 /games/
 # Editor directories and files
 .vscode/*

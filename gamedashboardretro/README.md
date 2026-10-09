@@ -43,9 +43,12 @@ Keep Dolphin's companion files and folders such as `Sys` alongside its
 executable. Portable mode is enabled with `Dolphin-x64/portable.txt`, so
 Dolphin stores controller configuration and other user settings in
 `Dolphin-x64/User/` instead of the Windows user profile. The `User/` folder is
-kept local and excluded from Git. GDR also enables Dolphin's `SkipNKitWarning`
-option, denies usage analytics, and marks the analytics choice as answered in
-that portable configuration before launching games.
+kept local and excluded from Git. Tracked baseline settings and profiles are
+stored separately in `Dolphin-x64/GDR-Defaults/`; GDR copies them into missing
+portable config files without overwriting existing settings. This includes
+6x internal resolution, the XInput GameCube pad configuration, and 8BitDo and
+Keyboard/Mouse controller profiles. GDR also enforces fullscreen, disables
+analytics, and skips the NKit warning before launching games.
 GameCube launches set `Main.Display.Fullscreen=True` for Dolphin and configure
 the portable `GFX.ini` to render at 6x native internal resolution for 4K-class
 output. Fullscreen output still follows the connected display's resolution;
@@ -121,13 +124,14 @@ game-assets/
         Super Mario World (USA).png
 ```
 
-GDR indexes PNG, JPEG, and WebP files in `Named_Boxarts` and `Named_Titles`
-folders at startup. A matching filename in `Named_Titles` supplies the
-displayed game title; if no title image matches, GDR uses the ROM filename.
-Box art matches by ROM filename or OpenVGDB title and console. Restart GDR
-after adding or replacing artwork so the local index is refreshed. These files
-stay local and excluded from Git; no artwork is fetched over the network at
-runtime.
+`game-assets/Libretro-Thumbnails/` is local user data and is entirely ignored
+by Git. Put the downloaded console folders there. GDR refreshes its index on
+every games-folder scan and checks for matching PNG, JPEG, or WebP files in
+`Named_Titles` and `Named_Boxarts`. A matching title image filename supplies
+the displayed game title; if there is no match, the ROM filename is used.
+Matching box art is shown when available; when no local cover is found, GDR
+uses its built-in card artwork. New, changed, or removed images are applied on
+the next scan without restarting. No artwork is fetched over the network.
 
 The database and bundled Dolphin can move with the project. The selected games
 folder path and each ROM path are absolute, so if an external drive's letter

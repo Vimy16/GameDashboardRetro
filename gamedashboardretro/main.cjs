@@ -32,6 +32,7 @@ let openVgdbDatabase
 let gameStore
 
 function syncPlatformGames(folder = gamesFolder) {
+  gameStore.setArtworkLookup(createLocalArtworkLookup(gameAssetsFolder))
   const { games, folder: resolvedFolder } = scanPlatformGames(folder)
   const previousFolder = gameStore.getGamesFolder()
   const managedFolders = [previousFolder, resolvedFolder].filter(Boolean)
@@ -173,7 +174,6 @@ app.whenReady().then(async () => {
   gameStore = createGameStore(
     database,
     openVgdbDatabase ? createOpenVgdbLookup(openVgdbDatabase) : undefined,
-    createLocalArtworkLookup(gameAssetsFolder),
   )
   registerArtworkProtocol()
   const savedGamesFolder = gameStore.getGamesFolder()
