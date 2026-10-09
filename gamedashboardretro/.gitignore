@@ -28,7 +28,7 @@ database/*.sqlite-wal
 !/game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/Named_Boxarts/
 /game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/Named_Boxarts/*
 !/game-assets/Libretro-Thumbnails/Nintendo_-_GameCube/Named_Boxarts/.gitkeep
-
+/games/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
