@@ -20,9 +20,12 @@ const platformByExtension = {
   gba: 'GBA',
   n64: 'Nintendo 64',
   z64: 'Nintendo 64',
+  gcm: 'GameCube',
+  gcz: 'GameCube',
+  rvz: 'GameCube',
+  iso: 'GameCube',
   md: 'Genesis',
   gen: 'Genesis',
-  iso: 'PlayStation',
   cue: 'PlayStation',
   bin: 'PlayStation',
   zip: 'Other',
@@ -32,10 +35,10 @@ const platformByExtension = {
 const insertGameSql = `
   INSERT INTO games (
     title, subtitle, platform, genre, year, cover, symbol,
-    favorite, recent, file_path, added_at
+    favorite, recent, file_path, added_at, developer, publisher, cover_url, artwork_path
   ) VALUES (
     @title, @subtitle, @platform, @genre, @year, @cover, @symbol,
-    @favorite, @recent, @filePath, @addedAt
+    @favorite, @recent, @filePath, @addedAt, @developer, @publisher, @coverUrl, @artworkPath
   )
 `
 
@@ -52,10 +55,44 @@ function toGame(row) {
     favorite: Boolean(row.favorite),
     recent: Boolean(row.recent),
     filePath: row.file_path,
+    developer: row.developer,
+    publisher: row.publisher,
+    coverUrl: row.cover_url,
+    artworkPath: row.artwork_path,
   }
 }
 
-function createGameStore(database) {
+function createImportedGame(filePath, platformOverride, metadataLookup, artworkLookup) {
+  const extension = path.extname(filePath).slice(1).toLowerCase()
+  const title = path.parse(filePath).name.replace(/\.nkit$/i, '').replace(/[_-]/g, ' ')
+  const platform = platformOverride ?? platformByExtension[extension] ?? 'Other'
+  const metadata = metadataLookup(filePath, platform)
+  const displayTitle = artworkLookup.findTitle(filePath, platform, metadata?.title) ?? title
+  const artworkPath = artworkLookup.findArtwork(filePath, platform, metadata?.title ?? title)
+  return {
+    title: displayTitle,
+    subtitle: 'Recently added to your library',
+    platform,
+    genre: metadata?.genre ?? 'Game',
+    year: metadata?.year ?? '—',
+    cover: 'new-game',
+    symbol: '✦',
+    favorite: 0,
+    recent: 0,
+    filePath,
+    addedAt: new Date().toISOString(),
+    developer: metadata?.developer ?? null,
+    publisher: metadata?.publisher ?? null,
+    coverUrl: metadata?.coverUrl ?? null,
+    artworkPath,
+    hasMetadata: Boolean(metadata),
+  }
+}
+
+function createGameStore(database, metadataLookup = () => null, artworkLookup = {
+  findArtwork: () => null,
+  findTitle: () => null,
+}) {
   database.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA foreign_keys = ON;
@@ -71,6 +108,10 @@ function createGameStore(database) {
       favorite INTEGER NOT NULL DEFAULT 0 CHECK (favorite IN (0, 1)),
       recent INTEGER NOT NULL DEFAULT 0 CHECK (recent IN (0, 1)),
       file_path TEXT UNIQUE,
+      developer TEXT,
+      publisher TEXT,
+      cover_url TEXT,
+      artwork_path TEXT,
       added_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS app_settings (
@@ -79,7 +120,49 @@ function createGameStore(database) {
     );
   `)
 
+  const gameColumns = new Set(database.prepare('PRAGMA table_info(games)').all().map(({ name }) => name))
+  for (const [column, type] of [
+    ['developer', 'TEXT'],
+    ['publisher', 'TEXT'],
+    ['cover_url', 'TEXT'],
+    ['artwork_path', 'TEXT'],
+  ]) {
+    if (!gameColumns.has(column)) database.exec(`ALTER TABLE games ADD COLUMN ${column} ${type}`)
+  }
+
   const insertGame = database.prepare(insertGameSql)
+  const insertFile = database.prepare(insertGameSql.replace('INSERT INTO games', 'INSERT OR IGNORE INTO games'))
+  const updateMetadata = database.prepare(`
+    UPDATE games SET
+      title = @title,
+      genre = @genre,
+      year = @year,
+      developer = @developer,
+      publisher = @publisher,
+      cover_url = @coverUrl
+    WHERE file_path = @filePath
+  `)
+  const updateArtwork = database.prepare('UPDATE games SET artwork_path = ? WHERE file_path = ?')
+  const updateTitle = database.prepare('UPDATE games SET title = ? WHERE file_path = ?')
+  const addImportedFile = (filePath, platformOverride) => {
+    const importedGame = createImportedGame(filePath, platformOverride, metadataLookup, artworkLookup)
+    const { hasMetadata, ...game } = importedGame
+    const result = insertFile.run(game)
+    if (hasMetadata) {
+      updateMetadata.run({
+        title: game.title,
+        genre: game.genre,
+        year: game.year,
+        developer: game.developer,
+        publisher: game.publisher,
+        coverUrl: game.coverUrl,
+        filePath: game.filePath,
+      })
+    }
+    if (game.artworkPath) updateArtwork.run(game.artworkPath, game.filePath)
+    updateTitle.run(game.title, game.filePath)
+    return Number(result.changes)
+  }
   const runTransaction = (callback) => {
     database.exec('BEGIN IMMEDIATE')
     try {
@@ -121,31 +204,61 @@ function createGameStore(database) {
         .map(toGame)
     },
 
+    getGamesFolder() {
+      return database.prepare(
+        "SELECT setting_value FROM app_settings WHERE setting_key = 'games_folder'",
+      ).get()?.setting_value ?? null
+    },
+
     addFiles(filePaths) {
-      const insertFile = database.prepare(insertGameSql.replace('INSERT INTO games', 'INSERT OR IGNORE INTO games'))
       let addedCount = 0
 
       runTransaction(() => {
         for (const filePath of filePaths) {
-          const extension = path.extname(filePath).slice(1).toLowerCase()
-          const title = path.parse(filePath).name.replace(/[_-]/g, ' ')
-          const result = insertFile.run({
-            title,
-            subtitle: 'Recently added to your library',
-            platform: platformByExtension[extension] ?? 'Other',
-            genre: 'Game',
-            year: '—',
-            cover: 'new-game',
-            symbol: '✦',
-            favorite: 0,
-            recent: 0,
-            filePath,
-            addedAt: new Date().toISOString(),
-          })
-          addedCount += Number(result.changes)
+          addedCount += addImportedFile(filePath)
         }
       })
       return { addedCount, games: this.list() }
+    },
+
+    syncPlatformFiles(scannedGames, managedFolders, gamesFolder) {
+      let addedCount = 0
+      let removedCount = 0
+      const scannedPaths = new Set(scannedGames.map(({ filePath }) => path.resolve(filePath)))
+      const resolvedManagedFolders = managedFolders.map((folder) => path.resolve(folder))
+      const updatePlatform = database.prepare('UPDATE games SET platform = ? WHERE file_path = ?')
+      const deleteGame = database.prepare('DELETE FROM games WHERE id = ?')
+
+      runTransaction(() => {
+        for (const { filePath, platform } of scannedGames) {
+          addedCount += addImportedFile(filePath, platform)
+          updatePlatform.run(platform, filePath)
+        }
+
+        const managedGames = database.prepare(
+          'SELECT id, file_path FROM games WHERE file_path IS NOT NULL',
+        ).all()
+        for (const game of managedGames) {
+          const resolvedPath = path.resolve(game.file_path)
+          const isManaged = resolvedManagedFolders.some((folder) => {
+            const relativePath = path.relative(folder, resolvedPath)
+            return relativePath !== ''
+              && !relativePath.startsWith(`..${path.sep}`)
+              && relativePath !== '..'
+              && !path.isAbsolute(relativePath)
+          })
+          if (isManaged && !scannedPaths.has(resolvedPath)) {
+            removedCount += Number(deleteGame.run(game.id).changes)
+          }
+        }
+        database.prepare(`
+          INSERT INTO app_settings (setting_key, setting_value)
+          VALUES ('games_folder', ?)
+          ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value
+        `).run(path.resolve(gamesFolder))
+      })
+
+      return { addedCount, removedCount, games: this.list() }
     },
 
     toggleFavorite(id) {
@@ -164,4 +277,4 @@ function createGameStore(database) {
   }
 }
 
-module.exports = { createGameStore }
+module.exports = { createGameStore, platformByExtension }

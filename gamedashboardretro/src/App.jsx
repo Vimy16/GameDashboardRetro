@@ -7,7 +7,7 @@ import GamepadHelp from './components/GamepadHelp.jsx'
 import GameOptionsMenu from './components/GameOptionsMenu.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Topbar from './components/Topbar.jsx'
-import { addGames, loadGames, openDataFolder, removeGame, toggleFavorite, toggleFullscreen } from './services/gameLibrary.js'
+import { addGames, launchGame, loadGames, loadGamesFolder, openDataFolder, removeGame, scanGames, selectGamesFolder, toggleFavorite, toggleFullscreen } from './services/gameLibrary.js'
 import { useLocale } from './i18n/localeContext.js'
 import useGamepadNavigation from './hooks/useGamepadNavigation.js'
 import './styles/base.css'
@@ -25,6 +25,10 @@ function App() {
     queryKey: ['games'],
     queryFn: loadGames,
   })
+  const { data: gamesFolder } = useQuery({
+    queryKey: ['gamesFolder'],
+    queryFn: loadGamesFolder,
+  })
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activePage, setActivePage] = useState('allGames')
   const [activePlatform, setActivePlatform] = useState('all')
@@ -33,6 +37,7 @@ function App() {
   const [selectedGame, setSelectedGame] = useState(null)
   const [selectedGameId, setSelectedGameId] = useState(null)
   const [toast, setToast] = useState('')
+  const [isScanning, setIsScanning] = useState(false)
   const handleToggleFullscreen = useCallback(async () => {
     try {
       await toggleFullscreen()
@@ -67,6 +72,14 @@ function App() {
     event.stopPropagation()
     setSelectedGame(game)
     setMenuAnchor(event.currentTarget)
+  }
+
+  const handlePlayGame = async (game) => {
+    try {
+      await launchGame(game.id)
+    } catch (error) {
+      setToast(intl.formatMessage({ id: 'toast.error' }, { error: error.message }))
+    }
   }
 
   const closeGameOptions = () => {
@@ -119,6 +132,50 @@ function App() {
     }
   }
 
+  const handleScanGames = async () => {
+    if (isScanning) return
+    setIsScanning(true)
+    try {
+      const result = await scanGames()
+      queryClient.setQueryData(['games'], result.games)
+      setToast(intl.formatMessage(
+        { id: 'toast.scanComplete' },
+        {
+          scanned: result.scannedCount,
+          added: result.addedCount,
+          removed: result.removedCount,
+        },
+      ))
+    } catch (error) {
+      setToast(intl.formatMessage({ id: 'toast.error' }, { error: error.message }))
+    } finally {
+      setIsScanning(false)
+    }
+  }
+
+  const handleSelectGamesFolder = async () => {
+    if (isScanning) return
+    setIsScanning(true)
+    try {
+      const result = await selectGamesFolder()
+      if (result.canceled) return
+      queryClient.setQueryData(['games'], result.games)
+      queryClient.setQueryData(['gamesFolder'], result.folder)
+      setToast(intl.formatMessage(
+        { id: 'toast.gamesFolderUpdated' },
+        {
+          scanned: result.scannedCount,
+          added: result.addedCount,
+          removed: result.removedCount,
+        },
+      ))
+    } catch (error) {
+      setToast(intl.formatMessage({ id: 'toast.error' }, { error: error.message }))
+    } finally {
+      setIsScanning(false)
+    }
+  }
+
   const handleOpenDataFolder = async () => {
     try {
       await openDataFolder()
@@ -134,10 +191,14 @@ function App() {
         activePage={activePage}
         activePlatform={activePlatform}
         games={games}
+        gamesFolder={gamesFolder}
         isOpen={sidebarOpen}
         locale={locale}
+        isScanning={isScanning}
         onOpenDataFolder={handleOpenDataFolder}
         onPlatformSelect={handlePlatformSelect}
+        onScanGames={handleScanGames}
+        onSelectGamesFolder={handleSelectGamesFolder}
         onSelectPage={setActivePage}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
       />
@@ -163,6 +224,7 @@ function App() {
             setActivePlatform('all')
           }}
           onOpenGameOptions={handleOpenGameOptions}
+          onPlayGame={handlePlayGame}
           onPlatformChange={setActivePlatform}
           selectedGameId={selectedGameId}
           onSelectGame={setSelectedGameId}

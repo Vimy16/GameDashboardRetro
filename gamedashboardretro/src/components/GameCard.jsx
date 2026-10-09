@@ -7,8 +7,11 @@ import {
 import { FavoriteRounded, MoreHorizRounded } from '@mui/icons-material'
 import { useIntl } from 'react-intl'
 
-function GameCard({ game, index, isSelected, onOpenOptions, onSelect }) {
+function GameCard({ game, index, isSelected, onOpenOptions, onPlayGame, onSelect }) {
   const intl = useIntl()
+  const artworkUrl = game.artworkPath
+    ? `gdr-artwork://local/image?path=${encodeURIComponent(game.artworkPath)}`
+    : null
 
   return (
     <Box
@@ -18,10 +21,25 @@ function GameCard({ game, index, isSelected, onOpenOptions, onSelect }) {
       tabIndex={0}
       aria-label={game.title}
       onFocus={() => onSelect(game.id)}
-      onClick={() => onSelect(game.id)}
+      onClick={() => {
+        onSelect(game.id)
+        if (game.platform === 'GameCube') onPlayGame(game)
+      }}
       style={{ '--card-index': index }}
     >
-      <Box className={`game-art game-art--${game.cover}`}>
+      <Box className={`game-art game-art--${game.cover}${artworkUrl ? ' game-art--with-cover' : ''}`}>
+        {artworkUrl && (
+          <Box
+            component="img"
+            className="game-art-image"
+            src={artworkUrl}
+            alt={`${game.title} cover`}
+            onError={(event) => {
+              event.currentTarget.remove()
+              event.currentTarget.closest('.game-art')?.classList.remove('game-art--with-cover')
+            }}
+          />
+        )}
         <Box className="art-noise" />
         <Typography className="art-platform">{game.platform}</Typography>
         <Box className="cover-illustration" aria-hidden="true">

@@ -41,8 +41,11 @@
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), 0 4px 17px rgba(115, 82, 210, 0.1);
 }
 
-.brand-mark svg {
-  font-size: 22px;
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: contain;
 }
 
 .brand-copy {
@@ -147,8 +150,7 @@
 .app-shell--controller .nav-item:focus,
 .app-shell--controller .platform-item:focus,
 .app-shell--controller .language-option:focus,
-.app-shell--controller .collapse-button:focus,
-.app-shell--controller .platform-settings:focus {
+.app-shell--controller .collapse-button:focus {
   z-index: 1;
   outline: 3px solid #e1d4ff;
   outline-offset: -3px;
@@ -212,14 +214,84 @@
   justify-content: space-between;
 }
 
-.platform-settings.MuiIconButton-root {
-  width: 22px;
-  height: 22px;
-  color: #6f6c79;
+.platform-actions {
+  display: grid;
+  gap: 2px;
+  margin-top: 8px;
 }
 
-.platform-settings svg {
-  font-size: 14px;
+.sidebar-platform-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  color: #85828f;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-platform-action:hover:not(:disabled) {
+  color: #dedbe9;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-platform-action:disabled {
+  color: #a997e8;
+  cursor: default;
+  opacity: 0.8;
+}
+
+.sidebar-platform-action svg {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.sidebar-platform-action span {
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.sidebar--collapsed .platform-actions {
+  justify-items: center;
+}
+
+.sidebar--collapsed .sidebar-platform-action {
+  justify-content: center;
+  padding: 0;
+}
+
+.platform-folder-path {
+  overflow: hidden;
+  margin: 2px 10px 5px !important;
+  color: #64616e;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 8px !important;
+  line-height: 12px !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scan-icon--loading {
+  animation: scan-icon-rotate 900ms linear infinite;
+}
+
+.app-shell--controller .sidebar-platform-action:focus {
+  z-index: 1;
+  outline: 3px solid #e1d4ff;
+  outline-offset: -3px;
+  color: #fff;
+  background-color: rgba(136, 108, 219, 0.52);
+  box-shadow: inset 0 0 0 2px rgba(232, 222, 255, 0.2), 0 0 17px rgba(165, 139, 255, 0.48);
+}
+
+@keyframes scan-icon-rotate {
+  to { transform: rotate(360deg); }
 }
 
 .platform-list {
@@ -258,6 +330,12 @@
 .platform-dot--1 { background: #72c9b0; }
 .platform-dot--2 { background: #9d92e9; }
 .platform-dot--3 { background: #e6bb73; }
+.platform-dot--4 { background: #79a9e8; }
+.platform-dot--5 { background: #dc8cd5; }
+.platform-dot--6 { background: #e98e9a; }
+.platform-dot--7 { background: #72c9b0; }
+.platform-dot--8 { background: #9d92e9; }
+.platform-dot--9 { background: #85818f; }
 
 .platform-count {
   margin-left: auto;

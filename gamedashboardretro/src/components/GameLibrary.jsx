@@ -27,6 +27,7 @@ function GameLibrary({
   onAddGames,
   onClearFilters,
   onOpenGameOptions,
+  onPlayGame,
   onPlatformChange,
   selectedGameId,
   onSelectGame,
@@ -46,7 +47,7 @@ function GameLibrary({
     <Box className="page-content">
       <Box className="welcome-row">
         <Box>
-          <Typography className="eyebrow"><span className="eyebrow-line" /> {intl.formatMessage({ id: 'app.eyebrow' })}</Typography>
+          <Typography className="eyebrow">{intl.formatMessage({ id: 'app.eyebrow' })}</Typography>
           <Typography component="h1" className="page-title">
             {activePage === 'allGames'
               ? <>{intl.formatMessage({ id: 'page.allGamesTitle' })} <span>{intl.formatMessage({ id: 'page.libraryTitle' })}</span></>
@@ -127,6 +128,7 @@ function GameLibrary({
               index={index}
               isSelected={selectedGameId === game.id}
               onOpenOptions={onOpenGameOptions}
+              onPlayGame={onPlayGame}
               onSelect={onSelectGame}
             />
           ))}

@@ -12,8 +12,14 @@ export const navigation = [
 
 export const platformOptions = [
   'all',
+  'NES',
   'SNES',
+  'Game Boy',
+  'GBC',
+  'GBA',
+  'Nintendo 64',
   'Genesis',
   'PlayStation',
-  'GBA',
+  'GameCube',
+  'Other',
 ]
