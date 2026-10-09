@@ -1,0 +1,46 @@
+#root {
+  min-height: 100vh;
+}
+
+button {
+  color: inherit;
+}
+
+button:focus-visible,
+[role="button"]:focus-visible,
+[role="menuitem"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #e1d4ff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(161, 138, 255, 0.38), 0 0 22px rgba(161, 138, 255, 0.5);
+}
+
+.app-shell--controller button:focus,
+.app-shell--controller [role="button"]:focus,
+.app-shell--controller [role="menuitem"]:focus,
+.app-shell--controller .MuiButtonBase-root:focus,
+.app-shell--controller input:focus,
+.app-shell--controller [tabindex]:focus {
+  outline: 3px solid #e1d4ff;
+  outline-offset: 2px;
+  color: #fff;
+  filter: brightness(1.2);
+  box-shadow: 0 0 0 5px rgba(161, 138, 255, 0.4), 0 0 22px rgba(161, 138, 255, 0.62);
+}
+
+.app-shell {
+  --surface: #121218;
+  --surface-raised: #18181f;
+  --line: rgba(255, 255, 255, 0.075);
+  --muted: #84828f;
+  --purple: #a18aff;
+  display: flex;
+  min-height: 100vh;
+  color: #f2f0f7;
+  background:
+    radial-gradient(ellipse at 78% -10%, rgba(102, 75, 170, 0.1), transparent 42%),
+    #0b0b0f;
+}

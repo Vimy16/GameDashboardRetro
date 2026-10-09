@@ -1,0 +1,315 @@
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px 15px;
+}
+
+.game-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 9px;
+  background: #14141a;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.13);
+  animation: card-enter 360ms both;
+  animation-delay: calc(var(--card-index) * 35ms);
+  transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.game-card:hover {
+  border-color: rgba(179, 158, 255, 0.3);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  transform: translateY(-3px);
+}
+
+.game-card:focus {
+  z-index: 1;
+  outline: 3px solid #e1d4ff;
+  outline-offset: -3px;
+  border-color: #e1d4ff;
+  box-shadow: inset 0 0 0 4px rgba(153, 123, 255, 0.5), 0 0 25px rgba(153, 123, 255, 0.32), 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.app-shell--controller .game-card:focus {
+  outline-width: 4px;
+  outline-offset: -4px;
+  box-shadow: inset 0 0 0 5px rgba(153, 123, 255, 0.56), 0 0 27px rgba(179, 155, 255, 0.48), 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.game-card--selected:not(:focus) {
+  border-color: rgba(179, 158, 255, 0.42);
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.game-art {
+  position: relative;
+  height: clamp(180px, 20vw, 255px);
+  overflow: hidden;
+  isolation: isolate;
+  background: #27203e;
+}
+
+.game-art::before,
+.game-art::after {
+  position: absolute;
+  z-index: -1;
+  content: '';
+  pointer-events: none;
+}
+
+.game-art::before {
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(4, 4, 10, 0.3) 0%, transparent 27%, transparent 52%, rgba(4, 4, 10, 0.82) 100%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.07), transparent 45%);
+}
+
+.game-art::after {
+  inset: 0;
+  opacity: 0.18;
+  background: repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255, 255, 255, 0.1) 4px);
+  mix-blend-mode: overlay;
+}
+
+.art-noise {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.15;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E");
+}
+
+.game-art--zelda { background: linear-gradient(155deg, #244f54 0%, #36756a 43%, #192d39 100%); }
+.game-art--sonic { background: linear-gradient(150deg, #173b81 0%, #176cac 47%, #ed913f 100%); }
+.game-art--metroid { background: linear-gradient(155deg, #4c1d39 0%, #992b50 45%, #271a3a 100%); }
+.game-art--chrono { background: linear-gradient(155deg, #53294f 0%, #bd644e 47%, #2c234c 100%); }
+.game-art--castlevania { background: linear-gradient(155deg, #191b38 0%, #52315b 52%, #121629 100%); }
+.game-art--pokemon { background: linear-gradient(155deg, #286457 0%, #70a56b 47%, #263e4b 100%); }
+.game-art--kong { background: linear-gradient(155deg, #713921 0%, #ba7540 46%, #343925 100%); }
+.game-art--fantasy { background: linear-gradient(155deg, #263554 0%, #536183 46%, #39253e 100%); }
+.game-art--new-game { background: linear-gradient(155deg, #513c6e 0%, #68648d 50%, #22364a 100%); }
+
+.art-platform {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.83) !important;
+  background: rgba(9, 10, 18, 0.3);
+  backdrop-filter: blur(5px);
+  font-family: 'DM Mono', monospace !important;
+  font-size: 7px !important;
+  letter-spacing: 0.7px !important;
+  line-height: 10px !important;
+  text-transform: uppercase;
+}
+
+.cover-illustration {
+  position: absolute;
+  top: 16%;
+  left: 50%;
+  display: grid;
+  width: 145px;
+  height: 145px;
+  place-items: center;
+  transform: translateX(-50%);
+}
+
+.cover-sun {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 82px;
+  height: 82px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 36%, rgba(255, 232, 183, 0.65), rgba(252, 159, 128, 0.13) 69%, transparent 70%);
+  box-shadow: 0 0 37px rgba(255, 192, 156, 0.21);
+  transform: translateX(-50%);
+}
+
+.cover-orbit {
+  position: absolute;
+  top: 29px;
+  left: 50%;
+  width: 128px;
+  height: 47px;
+  border: 1px solid rgba(255, 255, 255, 0.31);
+  border-radius: 50%;
+  transform: translateX(-50%) rotate(-23deg);
+}
+
+.cover-symbol {
+  position: relative;
+  z-index: 1;
+  margin-top: -9px;
+  color: rgba(255, 240, 202, 0.92);
+  font-family: Georgia, serif;
+  font-size: 65px;
+  font-weight: 400;
+  line-height: 1;
+  text-shadow: 0 3px 18px rgba(255, 217, 164, 0.52), 0 5px 23px rgba(9, 11, 20, 0.42);
+}
+
+.cover-horizon {
+  position: absolute;
+  right: -45px;
+  bottom: 1px;
+  left: -45px;
+  height: 50px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(180deg, rgba(10, 16, 27, 0.07), rgba(7, 9, 18, 0.5));
+  clip-path: polygon(0 51%, 15% 36%, 30% 55%, 49% 24%, 68% 54%, 84% 34%, 100% 54%, 100% 100%, 0 100%);
+}
+
+.game-art--sonic .cover-sun {
+  background: radial-gradient(circle at 40% 36%, rgba(255, 229, 120, 0.7), rgba(255, 173, 61, 0.1) 70%, transparent 71%);
+}
+
+.game-art--sonic .cover-symbol {
+  color: #ffdf77;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 73px;
+  font-weight: 800;
+  font-style: italic;
+  text-shadow: 0 4px 0 #b95352, 0 8px 23px rgba(21, 19, 59, 0.45);
+}
+
+.game-art--metroid .cover-symbol { color: #ffcf9f; }
+.game-art--chrono .cover-symbol { color: #ffe0a0; }
+.game-art--castlevania .cover-symbol { color: #e8cbff; }
+.game-art--pokemon .cover-symbol { color: #deebac; }
+.game-art--kong .cover-symbol { color: #ffd58c; }
+.game-art--fantasy .cover-symbol { color: #d8deff; }
+
+.cover-copy {
+  position: absolute;
+  right: 13px;
+  bottom: 30px;
+  left: 13px;
+  text-align: center;
+}
+
+.cover-kicker {
+  margin-bottom: 3px !important;
+  color: rgba(255, 255, 255, 0.68);
+  font-family: 'DM Mono', monospace !important;
+  font-size: 7px !important;
+  letter-spacing: 1.1px !important;
+  line-height: 12px !important;
+  text-transform: uppercase;
+}
+
+.cover-title {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #fff9ec;
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-size: clamp(14px, 1.32vw, 19px) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.5px !important;
+  line-height: 1.08 !important;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.65);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.cover-bottom-line {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.63);
+  font-family: 'DM Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.6px;
+}
+
+.cover-bottom-line span {
+  width: 18px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.cover-favorite {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  color: #ffd1df;
+  background: rgba(10, 10, 16, 0.33);
+  backdrop-filter: blur(5px);
+}
+
+.cover-favorite svg {
+  font-size: 12px;
+}
+
+.game-info {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 8px 8px 8px 11px;
+}
+
+.game-details {
+  min-width: 0;
+}
+
+.game-title {
+  overflow: hidden;
+  color: #e7e4ed !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.15px !important;
+  line-height: 16px !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px !important;
+  color: #817e8c !important;
+  font-size: 8px !important;
+  line-height: 13px !important;
+}
+
+.game-meta span {
+  color: #575560;
+}
+
+.game-menu-button.MuiIconButton-root {
+  flex: 0 0 27px;
+  width: 27px;
+  height: 27px;
+  border-radius: 6px;
+  color: #8b8895;
+}
+
+.game-menu-button.MuiIconButton-root:hover {
+  color: #c7b8ff;
+  background: rgba(173, 150, 255, 0.12);
+}
+
+.game-menu-button svg {
+  font-size: 19px;
+}

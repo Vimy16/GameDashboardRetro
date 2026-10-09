@@ -1,0 +1,330 @@
+@media (min-width: 1550px) {
+  .game-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1190px) {
+  .sidebar {
+    flex-basis: 218px;
+    width: 218px;
+  }
+
+  .sidebar--collapsed {
+    flex-basis: 76px;
+    width: 76px;
+  }
+
+  .page-content {
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+
+  .topbar {
+    padding-right: 30px;
+    padding-left: 30px;
+  }
+
+  .game-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .game-art {
+    height: clamp(205px, 25vw, 270px);
+  }
+
+  .cover-title {
+    font-size: 18px !important;
+  }
+}
+
+@media (max-width: 850px) {
+  .sidebar {
+    flex-basis: 76px;
+    width: 76px;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .sidebar .brand {
+    justify-content: center;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .sidebar .brand-copy,
+  .sidebar .nav-label,
+  .sidebar .nav-item span,
+  .sidebar .platform-item span:not(.platform-dot),
+  .sidebar .platform-heading .platform-settings,
+  .sidebar .storage-card {
+    display: none;
+  }
+
+  .sidebar .nav-item,
+  .sidebar .platform-item {
+    justify-content: center;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .sidebar .nav-icon,
+  .sidebar .platform-dot {
+    margin-right: 0;
+  }
+
+  .sidebar .language-picker {
+    justify-self: center;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .sidebar .language-option {
+    min-width: 17px;
+    padding-right: 2px;
+    padding-left: 2px;
+    font-size: 7px;
+  }
+
+  .collapse-button.MuiIconButton-root {
+    display: none;
+  }
+
+  .sidebar-divider {
+    margin-right: 2px;
+    margin-left: 2px;
+  }
+
+  .stats-row {
+    gap: 14px;
+    padding: 0 12px;
+  }
+
+  .stats-note {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  body {
+    min-width: 360px;
+  }
+
+  .sidebar {
+    flex-basis: 60px;
+    width: 60px;
+    padding: 17px 7px 12px;
+  }
+
+  .sidebar--collapsed {
+    flex-basis: 60px;
+    width: 60px;
+  }
+
+  .brand-mark {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand {
+    margin-bottom: 27px;
+  }
+
+  .topbar {
+    height: 61px;
+    padding: 0 14px;
+  }
+
+  .breadcrumb {
+    gap: 6px;
+  }
+
+  .breadcrumb .MuiTypography-root {
+    font-size: 9px;
+  }
+
+  .topbar-actions {
+    gap: 7px;
+  }
+
+  .search-box {
+    width: 34px;
+    height: 32px;
+    justify-content: center;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .search-box:focus-within {
+    position: absolute;
+    right: 106px;
+    left: 72px;
+    z-index: 2;
+    width: auto;
+    justify-content: flex-start;
+    padding: 0 9px;
+    border-color: rgba(163, 139, 255, 0.48);
+    background: #17161d;
+  }
+
+  .search-box .MuiInputBase-root,
+  .search-box kbd {
+    display: none;
+  }
+
+  .search-box:focus-within .MuiInputBase-root {
+    display: flex;
+  }
+
+  .search-box:focus-within kbd {
+    display: block;
+  }
+
+  .topbar-divider {
+    display: none;
+  }
+
+  .avatar {
+    width: 27px;
+    height: 27px;
+  }
+
+  .page-content {
+    padding: 29px 16px 18px;
+  }
+
+  .welcome-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 13px;
+  }
+
+  .eyebrow {
+    margin-bottom: 9px !important;
+    font-size: 8px !important;
+  }
+
+  .page-title {
+    font-size: 32px !important;
+    letter-spacing: -1.4px !important;
+  }
+
+  .page-description {
+    max-width: 240px;
+    margin-top: 6px !important;
+    font-size: 10px !important;
+  }
+
+  .add-game-button.MuiButton-root {
+    min-height: 32px;
+    margin: 6px 0 0 auto;
+    padding: 0 9px;
+    font-size: 9px;
+  }
+
+  .stats-row {
+    min-height: 69px;
+    justify-content: space-between;
+    gap: 7px;
+    margin-top: 22px;
+    padding: 0 9px;
+  }
+
+  .stat-card {
+    gap: 6px;
+  }
+
+  .stat-icon {
+    width: 27px;
+    height: 27px;
+    border-radius: 6px;
+  }
+
+  .stat-icon svg {
+    font-size: 13px;
+  }
+
+  .stat-label {
+    font-size: 6px !important;
+    letter-spacing: 0.2px !important;
+  }
+
+  .stat-value {
+    font-size: 11px !important;
+    line-height: 17px !important;
+  }
+
+  .stat-value span {
+    display: none;
+  }
+
+  .stats-divider {
+    height: 28px;
+  }
+
+  .collection-toolbar {
+    margin-top: 27px;
+  }
+
+  .collection-heading h2 {
+    font-size: 13px;
+  }
+
+  .game-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 10px;
+  }
+
+  .game-art {
+    height: clamp(175px, 53vw, 245px);
+  }
+
+  .cover-illustration {
+    top: 13%;
+    transform: translateX(-50%) scale(0.82);
+  }
+
+  .cover-title {
+    font-size: clamp(13px, 4vw, 17px) !important;
+  }
+
+  .cover-copy {
+    right: 8px;
+    left: 8px;
+  }
+
+  .game-info {
+    min-height: 53px;
+    padding-left: 8px;
+  }
+
+  .game-title {
+    font-size: 9px !important;
+  }
+
+  .game-meta {
+    gap: 4px;
+    font-size: 7px !important;
+  }
+
+  .page-footer {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: auto;
+    font-size: 6px;
+    letter-spacing: 0.35px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
