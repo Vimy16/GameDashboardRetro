@@ -8,7 +8,15 @@ function getDesktopApi() {
 
 export const loadGames = () => getDesktopApi().listGames()
 
+export const loadGamesFolder = () => getDesktopApi().getGamesFolder()
+
+export const scanGames = () => getDesktopApi().scanGames()
+
+export const selectGamesFolder = () => getDesktopApi().selectGamesFolder()
+
 export const addGames = () => getDesktopApi().addGames()
+
+export const launchGame = (gameId) => getDesktopApi().launchGame(gameId)
 
 export const toggleFavorite = (gameId) => getDesktopApi().toggleFavorite(gameId)
 

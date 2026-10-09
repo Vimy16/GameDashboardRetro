@@ -8,10 +8,10 @@ import {
   ChevronLeftRounded,
   FolderOpenRounded,
   GridViewRounded,
-  SportsEsportsRounded,
-  TuneRounded,
+  RefreshRounded,
 } from '@mui/icons-material'
 import { useIntl } from 'react-intl'
+import brandIcon from '../assets/game-dash-retro-icon.png'
 import { navigation, platformOptions } from '../data/games.js'
 import { useLocale } from '../i18n/localeContext.js'
 
@@ -19,10 +19,14 @@ function Sidebar({
   activePage,
   activePlatform,
   games,
+  gamesFolder,
   isOpen,
   locale,
+  isScanning,
   onOpenDataFolder,
   onPlatformSelect,
+  onScanGames,
+  onSelectGamesFolder,
   onSelectPage,
   onToggle,
 }) {
@@ -32,7 +36,9 @@ function Sidebar({
   return (
     <Box component="aside" className={`sidebar ${isOpen ? '' : 'sidebar--collapsed'}`}>
       <Box className="brand">
-        <Box className="brand-mark"><SportsEsportsRounded /></Box>
+      <Box className="brand-mark">
+        <img src={brandIcon} alt="" />
+      </Box>
         {isOpen && (
           <Box className="brand-copy">
             <Typography className="brand-name">G<span>DR</span></Typography>
@@ -67,30 +73,63 @@ function Sidebar({
         <Box className="sidebar-divider" />
         <Box className="platform-heading">
           {isOpen && <Typography className="nav-label">{intl.formatMessage({ id: 'platform.section' })}</Typography>}
-          {isOpen && <IconButton size="small" aria-label={intl.formatMessage({ id: 'sidebar.platformOptions' })} className="platform-settings"><TuneRounded /></IconButton>}
         </Box>
+        <Box className="platform-actions">
+          <Tooltip title={isOpen ? '' : intl.formatMessage({ id: 'sidebar.chooseGamesFolder' })} placement="right">
+            <button
+              type="button"
+              className="sidebar-platform-action"
+              aria-label={intl.formatMessage({ id: 'sidebar.chooseGamesFolder' })}
+              disabled={isScanning}
+              onClick={onSelectGamesFolder}
+            >
+              <FolderOpenRounded />
+              {isOpen && <span>{intl.formatMessage({ id: 'sidebar.chooseGamesFolder' })}</span>}
+            </button>
+          </Tooltip>
+          <Tooltip title={isOpen ? '' : intl.formatMessage({ id: 'sidebar.scanGames' })} placement="right">
+            <button
+              type="button"
+              className="sidebar-platform-action"
+              aria-label={intl.formatMessage({ id: 'sidebar.scanGames' })}
+              aria-busy={isScanning}
+              disabled={isScanning}
+              onClick={onScanGames}
+            >
+              <RefreshRounded className={isScanning ? 'scan-icon--loading' : ''} />
+              {isOpen && <span>{intl.formatMessage({ id: 'sidebar.scanGames' })}</span>}
+            </button>
+          </Tooltip>
+        </Box>
+        {isOpen && gamesFolder && (
+          <Tooltip title={gamesFolder} placement="right">
+            <Typography className="platform-folder-path">{gamesFolder}</Typography>
+          </Tooltip>
+        )}
         <Box className="platform-list">
           {platformOptions.map((platform, index) => {
             const label = platform === 'all'
               ? intl.formatMessage({ id: 'platform.all' })
-              : platform
+              : platform === 'Other'
+                ? intl.formatMessage({ id: 'platform.other' })
+                : platform
             const count = platform === 'all'
               ? games.length
               : games.filter((game) => game.platform === platform).length
 
             return (
-            <Tooltip key={platform} title={isOpen ? '' : label} placement="right">
-              <button
-                type="button"
-                className={`platform-item ${activePlatform === platform ? 'platform-item--active' : ''}`}
-                onClick={() => onPlatformSelect(platform)}
-                aria-label={label}
-              >
-                <span className={`platform-dot ${platform === 'all' ? 'platform-dot--all' : `platform-dot--${index - 1}`}`} />
-                {isOpen && <span>{label}</span>}
-                {isOpen && <span className="platform-count">{count}</span>}
-              </button>
-            </Tooltip>
+              <Tooltip key={platform} title={isOpen ? '' : label} placement="right">
+                <button
+                  type="button"
+                  className={`platform-item ${activePlatform === platform ? 'platform-item--active' : ''}`}
+                  onClick={() => onPlatformSelect(platform)}
+                  aria-label={label}
+                >
+                  <span className={`platform-dot ${platform === 'all' ? 'platform-dot--all' : `platform-dot--${index - 1}`}`} />
+                  {isOpen && <span>{label}</span>}
+                  {isOpen && <span className="platform-count">{count}</span>}
+                </button>
+              </Tooltip>
             )
           })}
         </Box>
