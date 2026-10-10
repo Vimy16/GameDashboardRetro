@@ -179,3 +179,18 @@ test('upgrades existing game databases with OpenVGDB metadata fields', () => {
   assert.ok(columns.includes('artwork_path'))
   database.close()
 })
+
+test('persists and clears GDR settings in SQLite', () => {
+  const database = new DatabaseSync(':memory:')
+  const store = createGameStore(database)
+
+  store.setSetting('dolphin_path', 'C:\\Emulators\\Dolphin\\Dolphin.exe')
+  store.setSetting('dolphin_internal_resolution', '6')
+  assert.equal(store.getSetting('dolphin_path'), 'C:\\Emulators\\Dolphin\\Dolphin.exe')
+  assert.equal(store.getSetting('dolphin_internal_resolution'), '6')
+  assert.equal(store.getSetting('missing_setting'), null)
+
+  store.clearSetting('dolphin_path')
+  assert.equal(store.getSetting('dolphin_path'), null)
+  database.close()
+})

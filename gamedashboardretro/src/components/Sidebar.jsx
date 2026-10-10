@@ -9,6 +9,7 @@ import {
   FolderOpenRounded,
   GridViewRounded,
   RefreshRounded,
+  SettingsRounded,
 } from '@mui/icons-material'
 import { useIntl } from 'react-intl'
 import brandIcon from '../assets/game-dash-retro-icon.png'
@@ -24,6 +25,7 @@ function Sidebar({
   locale,
   isScanning,
   onOpenDataFolder,
+  onOpenDolphinSettings,
   onPlatformSelect,
   onScanGames,
   onSelectGamesFolder,
@@ -150,6 +152,17 @@ function Sidebar({
           <button type="button" className="nav-item utility-item" aria-label={intl.formatMessage({ id: 'sidebar.openDataFolder' })} onClick={onOpenDataFolder}>
             <FolderOpenRounded className="nav-icon" />
             {isOpen && <span>{intl.formatMessage({ id: 'sidebar.openDataFolder' })}</span>}
+          </button>
+        </Tooltip>
+        <Tooltip title={isOpen ? '' : intl.formatMessage({ id: 'sidebar.dolphinSettings' })} placement="right">
+          <button
+            type="button"
+            className="nav-item utility-item"
+            aria-label={intl.formatMessage({ id: 'sidebar.dolphinSettings' })}
+            onClick={onOpenDolphinSettings}
+          >
+            <SettingsRounded className="nav-icon" />
+            {isOpen && <span>{intl.formatMessage({ id: 'sidebar.dolphinSettings' })}</span>}
           </button>
         </Tooltip>
         <Box className="language-picker" role="group" aria-label={intl.formatMessage({ id: 'locale.label' })}>

@@ -40,9 +40,11 @@ function isVisibleAndEnabled(element) {
 
 function getFocusableElements() {
   const activeKeyboard = document.activeElement?.closest('.virtual-keyboard-paper')
-  const focusScope = activeKeyboard ?? document
+  const activePopup = document.activeElement?.closest('[role="listbox"], [role="menu"]')
+  const activeDialog = document.querySelector('[role="dialog"][aria-modal="true"]')
+  const focusScope = activeKeyboard ?? activePopup ?? activeDialog ?? document
   return Array.from(focusScope.querySelectorAll(
-    'button:not([data-game-options]), [role="button"], [role="menuitem"], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"]):not([data-game-options])',
+    'button:not([data-game-options]), [role="button"], [role="menuitem"], [role="option"], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"]):not([data-game-options])',
   )).filter(isVisibleAndEnabled)
 }
 
@@ -120,6 +122,8 @@ function moveFocus(direction) {
     return
   }
 
+  if (document.querySelector('[role="dialog"][aria-modal="true"]')) return
+
   const wrapCandidates = focusableElements
     .filter((element) => element !== currentElement)
     .map((element) => {
@@ -158,6 +162,7 @@ function pressEscape() {
     key: 'Escape',
     code: 'Escape',
     bubbles: true,
+    cancelable: true,
   }))
 }
 

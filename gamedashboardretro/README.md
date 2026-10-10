@@ -34,29 +34,32 @@ library, **X / Square** to open the focused game's options, **B** to go back or
 close a menu, and **Start** to toggle fullscreen. Opening a GameCube card
 launches its ROM in Dolphin fullscreen; this works with mouse clicks and
 controller **A**.
-Dolphin can be bundled by placing its complete extracted Windows `Dolphin-x64`
-folder beside `main.cjs`, so the executable is at
-`Dolphin-x64/Dolphin.exe`. GDR detects this layout, as well as
-`dolphin/Dolphin-x64/Dolphin.exe` and `dolphin/Dolphin.exe`, before checking
-common install locations. Set `DOLPHIN_PATH` to override automatic detection.
-Keep Dolphin's companion files and folders such as `Sys` alongside its
-executable. Portable mode is enabled with `Dolphin-x64/portable.txt`, so
-Dolphin stores controller configuration and other user settings in
-`Dolphin-x64/User/` instead of the Windows user profile. The `User/` folder is
-kept local and excluded from Git. Tracked baseline settings and profiles are
-stored separately in `Dolphin-x64/GDR-Defaults/`; GDR copies them into missing
-portable config files without overwriting existing settings. This includes
-6x internal resolution, the XInput GameCube pad configuration, and 8BitDo and
-Keyboard/Mouse controller profiles. GDR also enforces fullscreen, disables
-analytics, and skips the NKit warning before launching games.
-GameCube launches set `Main.Display.Fullscreen=True` for Dolphin and configure
-the portable `GFX.ini` to render at 6x native internal resolution for 4K-class
-output. Fullscreen output still follows the connected display's resolution;
-actual performance at this scale depends on the PC's graphics hardware.
-The bundled config maps GameCube controller port 1 to the XInput controller
-used by the 8BitDo Ultimate 2 Wireless 2.4 GHz receiver. Its named profile is
-available in Dolphin under the GameCube controller profile controls; the
-previous keyboard mapping is preserved as the `Keyboard Mouse` profile.
+
+### Dolphin setup
+
+Dolphin is a separate application and is not included in this repository.
+Install Dolphin for your platform, then open **Dolphin settings** from the
+sidebar and select its executable. GDR can also detect common installations;
+`DOLPHIN_PATH` can be set to a custom executable path. Keep Dolphin's companion
+files and folders, such as `Sys`, alongside its executable. Dolphin is not
+included or tracked; local `Dolphin-x64/` installations are ignored by Git.
+
+GDR stores Dolphin's generated emulator configuration in the ignored
+`dolphin-user/` folder and passes it to Dolphin as its user directory. The
+selected executable and GDR setting choices are persisted in the project
+database. GDR does not change Dolphin's normal user configuration. Tracked
+defaults in `dolphin-defaults/Config/` provide fullscreen, disabled analytics,
+skipped NKit warnings, 6× internal resolution, and GameCube controller
+profiles for an 8BitDo Ultimate 2 Wireless 2.4 GHz receiver (XInput) and
+keyboard/mouse. GDR seeds missing defaults and applies the chosen profile and
+internal resolution at launch.
+
+The Dolphin settings panel lets you choose native, 2×, 3×, 4× or 6× internal
+resolution, and the active controller profile. 6× is a 4K-class render scale,
+not a guarantee of native 4K display output or smooth performance; output size
+depends on the connected display and performance depends on the PC's graphics
+hardware.
+
 GameCube `.iso`, `.gcm`, `.gcz`, and `.rvz` files are supported. Because `.iso`
 does not identify a console by itself, GDR currently categorizes `.iso` as
 GameCube; use `.cue` or `.bin` for PlayStation games added through the file
@@ -133,10 +136,9 @@ Matching box art is shown when available; when no local cover is found, GDR
 uses its built-in card artwork. New, changed, or removed images are applied on
 the next scan without restarting. No artwork is fetched over the network.
 
-The database and bundled Dolphin can move with the project. The selected games
-folder path and each ROM path are absolute, so if an external drive's letter
-changes, select the games folder again. When redistributing Dolphin, include
-its license and comply with the licenses provided in its distribution.
+The database and GDR's Dolphin settings can move with the project. The selected
+games folder, Dolphin executable, and each ROM path are absolute, so if an
+external drive's letter changes, select the corresponding paths again.
 
 The game database is stored with the project so it moves with the external drive:
 
@@ -169,7 +171,9 @@ remembered on this device. Translation catalogs are in `src/i18n/messages/`.
 main.cjs                       Electron window, SQLite setup, and IPC handlers
 preload.cjs                    Narrow, isolated renderer-to-main API
 dolphinLauncher.cjs            Dolphin detection and GameCube launch
-platformGames.cjs              Recursive games-folder scanner
+dolphin-defaults/               GDR-owned Dolphin configuration templates
+dolphin-user/                   Ignored local Dolphin configuration and settings
+platformGames.cjs               Recursive games-folder scanner
 database/
   gameStore.cjs                SQLite schema and game storage operations
   gameStore.test.cjs           SQLite persistence tests
@@ -188,6 +192,7 @@ src/
     GameLibrary.jsx             Library page, stats, and collection controls
     GameCard.jsx                Individual game tile and cover art
     GameOptionsMenu.jsx         Game actions and status notifications
+    DolphinSettingsDialog.jsx     Dolphin executable and GDR configuration
   data/
     games.js                    Navigation and platform options
   i18n/

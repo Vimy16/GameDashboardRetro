@@ -16,9 +16,10 @@ dist-ssr
 database/*.sqlite
 database/*.sqlite-shm
 database/*.sqlite-wal
-/Dolphin-x64/User/
+/Dolphin-x64/
 /game-assets/
 /games/
+/dolphin-user/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -5,9 +5,11 @@ import { useIntl } from 'react-intl'
 import GameLibrary from './components/GameLibrary.jsx'
 import GamepadHelp from './components/GamepadHelp.jsx'
 import GameOptionsMenu from './components/GameOptionsMenu.jsx'
+import DolphinSettingsDialog from './components/DolphinSettingsDialog.jsx'
 import Sidebar from './components/Sidebar.jsx'
+import StartupScreen from './components/StartupScreen.jsx'
 import Topbar from './components/Topbar.jsx'
-import { addGames, launchGame, loadGames, loadGamesFolder, openDataFolder, removeGame, scanGames, selectGamesFolder, toggleFavorite, toggleFullscreen } from './services/gameLibrary.js'
+import { addGames, clearDolphinExecutable, launchGame, loadDolphinSettings, loadGames, loadGamesFolder, openDataFolder, removeGame, saveDolphinSettings, scanGames, selectDolphinExecutable, selectGamesFolder, toggleFavorite, toggleFullscreen } from './services/gameLibrary.js'
 import { useLocale } from './i18n/localeContext.js'
 import useGamepadNavigation from './hooks/useGamepadNavigation.js'
 import './styles/base.css'
@@ -29,6 +31,10 @@ function App() {
     queryKey: ['gamesFolder'],
     queryFn: loadGamesFolder,
   })
+  const { data: dolphinSettings } = useQuery({
+    queryKey: ['dolphinSettings'],
+    queryFn: loadDolphinSettings,
+  })
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activePage, setActivePage] = useState('allGames')
   const [activePlatform, setActivePlatform] = useState('all')
@@ -38,6 +44,7 @@ function App() {
   const [selectedGameId, setSelectedGameId] = useState(null)
   const [toast, setToast] = useState('')
   const [isScanning, setIsScanning] = useState(false)
+  const [dolphinSettingsOpen, setDolphinSettingsOpen] = useState(false)
   const handleToggleFullscreen = useCallback(async () => {
     try {
       await toggleFullscreen()
@@ -185,6 +192,38 @@ function App() {
     }
   }
 
+  const handleChooseDolphin = async () => {
+    const result = await selectDolphinExecutable()
+    queryClient.setQueryData(['dolphinSettings'], result.settings)
+    return result.canceled ? null : result.settings
+  }
+
+  const handleClearDolphin = async () => {
+    const settings = await clearDolphinExecutable()
+    queryClient.setQueryData(['dolphinSettings'], settings)
+    return settings
+  }
+
+  const handleSaveDolphinSettings = async (settings) => {
+    const updatedSettings = await saveDolphinSettings(settings)
+    queryClient.setQueryData(['dolphinSettings'], updatedSettings)
+    return updatedSettings
+  }
+
+  const handleOpenDolphinSettings = async () => {
+    try {
+      await queryClient.ensureQueryData({
+        queryKey: ['dolphinSettings'],
+        queryFn: loadDolphinSettings,
+      })
+      setDolphinSettingsOpen(true)
+    } catch (settingsError) {
+      setToast(intl.formatMessage({ id: 'toast.error' }, { error: settingsError.message }))
+    }
+  }
+
+  if (isLoading) return <StartupScreen />
+
   return (
     <Box className={`app-shell ${isControllerConnected ? 'app-shell--controller' : ''}`}>
       <Sidebar
@@ -196,6 +235,7 @@ function App() {
         locale={locale}
         isScanning={isScanning}
         onOpenDataFolder={handleOpenDataFolder}
+        onOpenDolphinSettings={handleOpenDolphinSettings}
         onPlatformSelect={handlePlatformSelect}
         onScanGames={handleScanGames}
         onSelectGamesFolder={handleSelectGamesFolder}
@@ -242,6 +282,16 @@ function App() {
         selectedGame={selectedGame}
         toast={toast}
       />
+      {dolphinSettingsOpen && (
+        <DolphinSettingsDialog
+          open
+          settings={dolphinSettings}
+          onClose={() => setDolphinSettingsOpen(false)}
+          onChooseExecutable={handleChooseDolphin}
+          onClearExecutable={handleClearDolphin}
+          onSave={handleSaveDolphinSettings}
+        />
+      )}
       <GamepadHelp isConnected={isControllerConnected} showInstructions={showControllerInstructions} />
     </Box>
   )

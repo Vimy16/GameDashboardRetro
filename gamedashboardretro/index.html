@@ -7,9 +7,114 @@
     <meta name="theme-color" content="#0b0b0f" />
     <meta name="description" content="Your retro game library, all in one place." />
     <title>GDR — Your personal arcade</title>
+    <style>
+      .startup-screen {
+        display: grid;
+        min-height: 100vh;
+        place-content: center;
+        justify-items: center;
+        gap: 18px;
+        color: #f2f0f7;
+        background:
+          radial-gradient(ellipse at 50% 44%, rgba(102, 75, 170, 0.18), transparent 42%),
+          #0b0b0f;
+        font-family: "Segoe UI", sans-serif;
+      }
+
+      .startup-brand {
+        position: relative;
+        display: grid;
+        width: 74px;
+        height: 74px;
+        place-items: center;
+        border: 1px solid rgba(177, 157, 255, 0.25);
+        border-radius: 22px;
+        color: #ded5ff;
+        background: linear-gradient(145deg, #262136, #17151e);
+        box-shadow: 0 12px 50px rgba(93, 67, 164, 0.22);
+        font-size: 23px;
+        font-weight: 800;
+        letter-spacing: -2px;
+      }
+
+      .startup-brand::before {
+        position: absolute;
+        inset: -6px;
+        border: 2px solid transparent;
+        border-top-color: #b6a2ff;
+        border-right-color: rgba(182, 162, 255, 0.25);
+        border-radius: 27px;
+        content: "";
+        animation: startup-spin 1.8s linear infinite;
+      }
+
+      .startup-brand span {
+        color: #a18aff;
+      }
+
+      .startup-copy {
+        display: grid;
+        justify-items: center;
+        gap: 6px;
+      }
+
+      .startup-title {
+        font-size: 15px;
+        font-weight: 650;
+        letter-spacing: 0.02em;
+      }
+
+      .startup-caption {
+        color: #888694;
+        font-size: 11px;
+      }
+
+      .startup-progress {
+        position: relative;
+        width: 180px;
+        height: 3px;
+        overflow: hidden;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.09);
+      }
+
+      .startup-progress::after {
+        position: absolute;
+        inset: 0 auto 0 -40%;
+        width: 40%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, transparent, #a18aff, #d5c9ff, transparent);
+        content: "";
+        animation: startup-progress 1.5s ease-in-out infinite;
+      }
+
+      @keyframes startup-spin {
+        to { transform: rotate(360deg); }
+      }
+
+      @keyframes startup-progress {
+        to { transform: translateX(350%); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .startup-brand::before,
+        .startup-progress::after {
+          animation-duration: 4s;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="startup-screen" role="status" aria-live="polite">
+        <div class="startup-brand" aria-hidden="true">G<span>DR</span></div>
+        <div class="startup-copy">
+          <div class="startup-title">GDR</div>
+          <div class="startup-caption">Loading your game library…</div>
+        </div>
+        <div class="startup-progress" role="progressbar" aria-label="Loading your game library"></div>
+      </main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

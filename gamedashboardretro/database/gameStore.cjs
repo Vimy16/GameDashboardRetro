@@ -212,6 +212,33 @@ function createGameStore(database, metadataLookup = () => null, artworkLookup = 
       ).get()?.setting_value ?? null
     },
 
+    getSetting(key) {
+      return database.prepare(
+        'SELECT setting_value FROM app_settings WHERE setting_key = ?',
+      ).get(key)?.setting_value ?? null
+    },
+
+    setSetting(key, value) {
+      if (typeof key !== 'string' || !key.trim()) {
+        throw new TypeError('A setting key is required.')
+      }
+      if (typeof value !== 'string' || !value) {
+        throw new TypeError('A setting value is required.')
+      }
+      database.prepare(`
+        INSERT INTO app_settings (setting_key, setting_value)
+        VALUES (?, ?)
+        ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value
+      `).run(key, value)
+    },
+
+    clearSetting(key) {
+      if (typeof key !== 'string' || !key.trim()) {
+        throw new TypeError('A setting key is required.')
+      }
+      database.prepare('DELETE FROM app_settings WHERE setting_key = ?').run(key)
+    },
+
     setArtworkLookup(lookup) {
       if (typeof lookup?.findArtwork !== 'function' || typeof lookup?.findTitle !== 'function') {
         throw new TypeError('Artwork lookup must provide findArtwork and findTitle functions.')

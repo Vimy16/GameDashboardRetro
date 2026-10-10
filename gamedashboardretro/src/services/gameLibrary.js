@@ -18,6 +18,14 @@ export const addGames = () => getDesktopApi().addGames()
 
 export const launchGame = (gameId) => getDesktopApi().launchGame(gameId)
 
+export const loadDolphinSettings = () => getDesktopApi().getDolphinSettings()
+
+export const selectDolphinExecutable = () => getDesktopApi().selectDolphinExecutable()
+
+export const clearDolphinExecutable = () => getDesktopApi().clearDolphinExecutable()
+
+export const saveDolphinSettings = (settings) => getDesktopApi().saveDolphinSettings(settings)
+
 export const toggleFavorite = (gameId) => getDesktopApi().toggleFavorite(gameId)
 
 export const removeGame = (gameId) => getDesktopApi().removeGame(gameId)

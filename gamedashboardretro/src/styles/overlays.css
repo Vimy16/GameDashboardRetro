@@ -42,6 +42,95 @@
   font-size: 17px;
 }
 
+.dolphin-settings-dialog.MuiPaper-root {
+  border: 1px solid rgba(177, 157, 255, 0.2);
+  border-radius: 12px;
+  color: #e8e4f1;
+  background: #19181f;
+  background-image: none;
+}
+
+.dolphin-settings-dialog .MuiDialogTitle-root {
+  padding: 20px 22px 10px;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.dolphin-settings-content.MuiDialogContent-root {
+  display: grid;
+  gap: 18px;
+  padding: 10px 22px 18px;
+}
+
+.dolphin-settings-description.MuiTypography-root,
+.dolphin-setting-hint.MuiTypography-root {
+  color: #9692a2;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.dolphin-detection {
+  display: grid;
+  gap: 8px;
+}
+
+.dolphin-detection .MuiAlert-root {
+  padding: 1px 10px;
+  font-size: 11px;
+}
+
+.dolphin-path.MuiTypography-root,
+.dolphin-path-error.MuiTypography-root {
+  overflow-wrap: anywhere;
+  color: #c3bece;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+}
+
+.dolphin-path-error.MuiTypography-root {
+  color: #e7a0a5;
+}
+
+.dolphin-path-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dolphin-settings-content .MuiFormControl-root .MuiInputBase-root {
+  color: #e8e4f1;
+}
+
+.dolphin-settings-content .MuiInputLabel-root {
+  color: #aaa5b6;
+}
+
+.dolphin-settings-content .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.dolphin-settings-content .MuiSelect-icon {
+  color: #aaa5b6;
+}
+
+.dolphin-setting-hint.MuiTypography-root {
+  margin-top: 5px;
+}
+
+.dolphin-settings-dialog .MuiDialogActions-root {
+  padding: 8px 22px 18px;
+}
+
+.dolphin-settings-dialog .MuiButtonBase-root:focus,
+.dolphin-settings-dialog button:focus,
+.dolphin-settings-dialog [role="combobox"]:focus {
+  outline: 3px solid #e1d4ff;
+  outline-offset: 2px;
+  color: #fff;
+  filter: brightness(1.2);
+  box-shadow: 0 0 0 5px rgba(161, 138, 255, 0.4), 0 0 22px rgba(161, 138, 255, 0.62);
+}
+
 .gamepad-help {
   position: fixed;
   right: 18px;

@@ -7,7 +7,11 @@ const { createGameStore } = require('./database/gameStore.cjs')
 const { createLocalArtworkLookup } = require('./database/localArtwork.cjs')
 const { migrateDatabaseIfNeeded } = require('./database/migrateDatabase.cjs')
 const { createOpenVgdbLookup } = require('./database/openvgdb.cjs')
-const { launchGameCubeGame } = require('./dolphinLauncher.cjs')
+const {
+  findDolphinExecutable,
+  internalResolutions,
+  launchGameCubeGame,
+} = require('./dolphinLauncher.cjs')
 const { scanPlatformGames } = require('./platformGames.cjs')
 
 protocol.registerSchemesAsPrivileged([{
@@ -27,6 +31,8 @@ let mainWindow
 let databaseFolder
 let gamesFolder
 let gameAssetsFolder
+let dolphinUserDirectory
+let dolphinDefaultsConfigFolder
 let database
 let openVgdbDatabase
 let gameStore
@@ -69,6 +75,37 @@ function createWindow() {
 function validateGameId(id) {
   if (!Number.isSafeInteger(id) || id < 1) {
     throw new TypeError('A valid game ID is required.')
+  }
+}
+
+function isDolphinExecutable(filePath) {
+  if (!filePath) return false
+  const executableName = path.basename(filePath).toLowerCase()
+  if (!['dolphin.exe', 'dolphin', 'dolphin-emu'].includes(executableName)) return false
+  try {
+    return fs.statSync(filePath).isFile()
+  } catch {
+    return false
+  }
+}
+
+function getDolphinSettings() {
+  const configuredPath = gameStore.getSetting('dolphin_path')
+  let detectedPath = null
+  let detectionError = null
+  try {
+    detectedPath = findDolphinExecutable(process.env, process.platform, configuredPath)
+  } catch (error) {
+    detectionError = error.message
+  }
+
+  return {
+    path: configuredPath ?? detectedPath,
+    detected: Boolean(detectedPath && isDolphinExecutable(detectedPath)),
+    configured: Boolean(configuredPath),
+    detectionError,
+    internalResolution: gameStore.getSetting('dolphin_internal_resolution') ?? '6',
+    controllerProfile: gameStore.getSetting('dolphin_controller_profile') ?? 'eightBitDo',
   }
 }
 
@@ -138,8 +175,53 @@ function registerHandlers() {
     if (game.platform !== 'GameCube') throw new Error('Dolphin launching is only available for GameCube games.')
     if (!game.filePath) throw new Error('Add the GameCube ROM file to your library before launching it.')
 
-    await launchGameCubeGame(game.filePath)
+    const settings = getDolphinSettings()
+    await launchGameCubeGame(game.filePath, {
+      dolphinPath: settings.configured ? settings.path : null,
+      userDirectory: dolphinUserDirectory,
+      defaultsConfigFolder: dolphinDefaultsConfigFolder,
+      internalResolution: settings.internalResolution,
+      controllerProfile: settings.controllerProfile,
+    })
     return true
+  })
+
+  ipcMain.handle('dolphin:get-settings', () => getDolphinSettings())
+  ipcMain.handle('dolphin:select-executable', async () => {
+    const currentPath = gameStore.getSetting('dolphin_path')
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select Dolphin Emulator',
+      properties: ['openFile'],
+      defaultPath: currentPath ? path.dirname(currentPath) : undefined,
+      filters: process.platform === 'win32'
+        ? [{ name: 'Dolphin Emulator', extensions: ['exe'] }]
+        : [{ name: 'Dolphin Emulator', extensions: ['*'] }],
+    })
+    if (result.canceled) return { canceled: true, settings: getDolphinSettings() }
+    const executable = result.filePaths[0]
+    if (!isDolphinExecutable(executable)) {
+      throw new Error('Select the Dolphin executable (Dolphin.exe, dolphin, or dolphin-emu).')
+    }
+    gameStore.setSetting('dolphin_path', path.resolve(executable))
+    return { canceled: false, settings: getDolphinSettings() }
+  })
+
+  ipcMain.handle('dolphin:clear-executable', () => {
+    gameStore.clearSetting('dolphin_path')
+    return getDolphinSettings()
+  })
+
+  ipcMain.handle('dolphin:save-settings', (_event, settings) => {
+    const allowedProfiles = new Set(['eightBitDo', 'keyboardMouse'])
+    if (!settings || !internalResolutions.has(String(settings.internalResolution))) {
+      throw new TypeError('Choose a supported Dolphin internal resolution.')
+    }
+    if (!allowedProfiles.has(settings.controllerProfile)) {
+      throw new TypeError('Choose a supported Dolphin controller profile.')
+    }
+    gameStore.setSetting('dolphin_internal_resolution', String(settings.internalResolution))
+    gameStore.setSetting('dolphin_controller_profile', settings.controllerProfile)
+    return getDolphinSettings()
   })
 
   ipcMain.handle('database:open-folder', async () => {
@@ -162,6 +244,8 @@ app.whenReady().then(async () => {
   const legacyDatabasePath = path.join(appDataFolder, 'PixelVault', 'database', 'pixelvault.sqlite')
   databaseFolder = path.join(__dirname, 'database')
   gameAssetsFolder = path.join(__dirname, 'game-assets')
+  dolphinUserDirectory = path.join(__dirname, 'dolphin-user')
+  dolphinDefaultsConfigFolder = path.join(__dirname, 'dolphin-defaults', 'Config')
   fs.mkdirSync(databaseFolder, { recursive: true })
   const databasePath = path.join(databaseFolder, 'gdr.sqlite')
   await migrateDatabaseIfNeeded(previousGdrDatabasePath, databasePath)
